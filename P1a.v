@@ -8,8 +8,8 @@ module ps4(
 // using only assign statements
 
 assign gnt[3] = 1 ? req[3] && en : 0; // highest priority
-assign gnt[2] = 1 ? req[2] && en : 0;
-assign gnt[1] = 1 ? req[1] && en : 0;
-assign gnt[0] = 1 ? req[1] && en : 0; // lowest
+assign gnt[2] = 1 ? ~req[3] && req[2] && en : 0;
+assign gnt[1] = 1 ? ~req[3] && ~req[2] && req[1] && en : 0;
+assign gnt[0] = 1 ? ~req[3] && ~req[2] && ~req[1] && req[0] && en : 0; // lowest
 
 endmodule
