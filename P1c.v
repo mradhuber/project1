@@ -9,8 +9,6 @@ parameter two = 2'b10; // highest priority
 parameter one = 2'b01; // lowest
 parameter zero = 2'b00; // none reqested but en is 1
 
-// TODO: Check req_up?
-
 always_comb begin
 	if (en) begin
 		if (req[1]) begin
