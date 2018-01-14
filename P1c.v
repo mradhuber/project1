@@ -25,7 +25,6 @@ always_comb begin
 		req_up = 0;
 	end
 end
-end
 
 endmodule
 
@@ -93,7 +92,6 @@ always_comb begin
 		gnt = zero;
 		req_up = 0;
 	end
-end
 end
 
 endmodule
