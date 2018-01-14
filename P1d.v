@@ -6,6 +6,30 @@ module rps2(
 	output logic	   req_up
 );
 
+parameter two = 2'b10; // grant on line 1
+parameter one = 2'b01; // grant on line 0
+parameter zero = 2'b00; // none reqested
+
+always_comb begin
+	// req[1] has higher priority
+	if (sel) begin
+		if (req[1]) begin
+			req_up = 1;
+			if (en)
+				gnt = two;
+		end
+		else if (req[0]) begin
+
+		end
+		else begin
+
+		end
+	end
+	else begin
+		// req[0] has higher priority
+	end
+end
+
 endmodule
 
 module rps4(
@@ -17,7 +41,7 @@ module rps4(
 	output logic [1:0] count
 );
 
-// use count as sel bits
+// use count as sel[1:0] bus
 always_ff begin
 	if (reset)
 		count <= 2'b00;
