@@ -18,15 +18,32 @@ always_comb begin
 			if (en)
 				gnt = two;
 		end
-		else if (req[0]) begin
-
+		else if (req[0] && ~req[1]) begin
+			req_up = 1;
+			if (en)
+				gnt = one;
 		end
 		else begin
-
+			gnt = zero;
+			req_up = 0;
 		end
 	end
 	else begin
 		// req[0] has higher priority
+		if (req[0]) begin
+			req_up = 1;
+			if (en)
+				gnt = one;
+		end
+		else if (req[1] && ~req[0]) begin
+			req_up = 1;
+			if (en)
+				gnt = two;
+		end
+		else begin
+			gnt = zero;
+			req_up = 0;
+		end
 	end
 end
 

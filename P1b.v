@@ -13,14 +13,14 @@ parameter one = 4'b0001; // lowest
 parameter zero = 4'b0000; // none reqested but en is 1
 
 always_comb begin
-	if(en) begin
+	if (en) begin
 		if (req[3])
 			gnt = four;
-		else if (req[2])
+		else if (req[2] && ~req[3])
 			gnt = three;
-		else if (req[1])
+		else if (req[1] && ~req[3] && ~req[2])
 			gnt = two;
-		else if (req[0])
+		else if (req[0] && ~req[3] && ~req[2] && ~req[1])
 			gnt = one;
 		else
 			gnt = zero;

@@ -15,7 +15,7 @@ always_comb begin
 		if (en)
 			gnt = two;
 	end
-	else if (req[0]) begin
+	else if (req[0] && ~req[1]) begin
 		req_up = 1;
 		if (en)
 			gnt = one;
@@ -57,7 +57,7 @@ always_comb begin
 			if (en)
 				gnt = four;
 		end
-		else if (upper_gnt[0]) begin
+		else if (upper_gnt[0] && ~upper_gnt[1]) begin
 			req_up = 1;
 			if (en)
 				gnt = three;
@@ -70,13 +70,13 @@ always_comb begin
 		end
 	end
 	// if you get a request from the "right" side
-	else if (tmp_req_up[0]) begin
+	else if (tmp_req_up[0] && ~tmp_req_up[1]) begin
 		if (lower_gnt[1]) begin
 			req_up = 1;
 			if (en)
 				gnt = two;
 		end
-		else if (lower_gnt[0]) begin
+		else if (lower_gnt[0] && ~lower_gnt[1]) begin
 			req_up = 1;
 			if (en)
 				gnt = one;
