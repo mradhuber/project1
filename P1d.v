@@ -2,8 +2,7 @@ module rps2(
 	input		 [1:0] req,
 	input		  	   en,
 	input			   sel,
-	output logic [1:0] gnt,
-	output logic	   req_up
+	output logic [1:0] gnt
 );
 
 parameter two = 2'b10; // grant on line 1
@@ -59,19 +58,23 @@ module rps4(
 	output logic [1:0] count
 );
 
-// possible grant line values
-parameter zero = 4'b0000;
-
 logic [1:0] lower_gnt;
 logic [1:0] upper_gnt;
-logic [1:0] tmp_req_up;
 
-rps2 lower(.req(req[1:0]), .en(en), .sel(count[0]), .gnt(lower_gnt), .req_up(tmp_req_up[0]));
-rps2 upper(.req(req[3:2]), .en(en), .sel(count[0]), .gnt(upper_gnt), .req_up(tmp_req_up[1]));
+rps2 lower(.req(req[1:0]), .en(en), .sel(count[0]), .gnt(lower_gnt));
+rps2 upper(.req(req[3:2]), .en(en), .sel(count[0]), .gnt(upper_gnt));
 
 always_comb begin
 	// if sel[1], left has higher priority
-	// else right has higher priority
+	if (count[1]) begin
+		rps2 top(.req(req[3:2]), .en(en), .sel(count[0]), .gnt(gnt[3:2]));
+		gnt[1:0] = 2'b00;
+	end
+	// else, right has higher priority
+	else begin
+		rps2 top(.req(req[1:0]), .en(en), .sel(count[0]), .gnt(gnt[1:0]));
+		gnt[3:2] = 2'b00;
+	end
 end
 
 // use count as sel[1:0] bus

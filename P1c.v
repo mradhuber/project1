@@ -1,3 +1,4 @@
+// 2-bit module
 module ps2(
 	input		 [1:0] req,
 	input		  	   en,
@@ -31,7 +32,7 @@ end
 
 endmodule
 
-
+// 4-bit module
 module ps4(	
 	input		 [3:0] req,
 	input		  	   en,
@@ -39,7 +40,6 @@ module ps4(
 	output logic 	   req_up
 );
 
-// possible grant line values
 parameter zero = 4'b0000;
 
 logic [1:0] lower_gnt;
