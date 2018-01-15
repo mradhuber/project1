@@ -49,6 +49,7 @@ end
 
 endmodule
 
+
 module rps4(
 	input			   clock,
 	input			   reset,
@@ -57,6 +58,21 @@ module rps4(
 	output logic [3:0] gnt,
 	output logic [1:0] count
 );
+
+// possible grant line values
+parameter zero = 4'b0000;
+
+logic [1:0] lower_gnt;
+logic [1:0] upper_gnt;
+logic [1:0] tmp_req_up;
+
+rps2 lower(.req(req[1:0]), .en(en), .sel(count[0]), .gnt(lower_gnt), .req_up(tmp_req_up[0]));
+rps2 upper(.req(req[3:2]), .en(en), .sel(count[0]), .gnt(upper_gnt), .req_up(tmp_req_up[1]));
+
+always_comb begin
+	// if sel[1], left has higher priority
+	// else right has higher priority
+end
 
 // use count as sel[1:0] bus
 always_ff begin

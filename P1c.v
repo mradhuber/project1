@@ -10,16 +10,19 @@ parameter one = 2'b01; // lowest
 parameter zero = 2'b00; // none reqested
 
 always_comb begin
+	// grant highest priority
 	if (req[1]) begin
 		req_up = 1;
 		if (en)
 			gnt = two;
 	end
+	// grant lower priority
 	else if (req[0] && ~req[1]) begin
 		req_up = 1;
 		if (en)
 			gnt = one;
 	end
+	// grant neither
 	else begin
 		gnt = zero;
 		req_up = 0;
@@ -28,6 +31,7 @@ end
 
 endmodule
 
+
 module ps4(	
 	input		 [3:0] req,
 	input		  	   en,
@@ -35,12 +39,8 @@ module ps4(
 	output logic 	   req_up
 );
 
-parameter four = 4'b1000;
-parameter three = 4'b0100;
-parameter two = 4'b0010;
-parameter one = 4'b0001;
+// possible grant line values
 parameter zero = 4'b0000;
-parameter error = 4'b1111;
 
 logic [1:0] lower_gnt;
 logic [1:0] upper_gnt;
@@ -52,41 +52,17 @@ ps2 upper(.req(req[3:2]), .en(en), .gnt(upper_gnt), .req_up(tmp_req_up[1])); // 
 always_comb begin
 	// if you get a request from the "left" side
 	if (tmp_req_up[1]) begin
-		if (upper_gnt[1]) begin
-			req_up = 1;
-			if (en)
-				gnt = four;
-		end
-		else if (upper_gnt[0] && ~upper_gnt[1]) begin
-			req_up = 1;
-			if (en)
-				gnt = three;
-		end
-		else begin
-			// this case should never happen
-			// what's the best way to handle this in Verilog?
-			gnt = error;
-			req_up = 0;
-		end
+		// call ps2
+		ps2 top(.req(req[3:2]), .en(en), .gnt(gnt[3:2]), .req_up(req_up));
+		// set the rest of the grant bits
+		gnt[1:0] = 2'b00;
 	end
 	// if you get a request from the "right" side
 	else if (tmp_req_up[0] && ~tmp_req_up[1]) begin
-		if (lower_gnt[1]) begin
-			req_up = 1;
-			if (en)
-				gnt = two;
-		end
-		else if (lower_gnt[0] && ~lower_gnt[1]) begin
-			req_up = 1;
-			if (en)
-				gnt = one;
-		end
-		else begin
-			// this case should never happen
-			// what's the best way to handle this in Verilog?
-			gnt = error;
-			req_up = 0;
-		end
+		// call ps2
+		ps2 top(.req(req[1:0]), .en(en), .gnt(gnt[1:0]), .req_up(req_up));
+		// set the rest of the grant bits
+		gnt[3:2] = 2'b00;
 	end
 	else begin
 		gnt = zero;
