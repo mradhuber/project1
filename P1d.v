@@ -1,3 +1,4 @@
+// 2-bit rotating
 module rps2(
 	input		 [1:0] req,
 	input		  	   en,
@@ -48,7 +49,7 @@ end
 
 endmodule
 
-
+// 4-bit rotating
 module rps4(
 	input			   clock,
 	input			   reset,
