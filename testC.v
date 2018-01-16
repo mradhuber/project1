@@ -1,17 +1,21 @@
 module testbench;
-    logic [3:0] req;
+    logic [7:0] req;
     logic  en;
-    logic [3:0] gnt;
-    logic [3:0] tb_gnt;
+    logic [7:0] gnt;
+    logic [7:0] tb_gnt;
     logic correct;
 
-    ps4 pe4(req, en, gnt);
+    ps8 pe8(req, en, gnt);
 	
 	integer i;
-    assign tb_gnt[3]=en&req[3];
-    assign tb_gnt[2]=en&req[2]&~req[3];
-    assign tb_gnt[1]=en&req[1]&~req[2]&~req[3];
-    assign tb_gnt[0]=en&req[0]&~req[1]&~req[2]&~req[3];
+    assign tb_gnt[7]=en&req[7];
+    assign tb_gnt[6]=en&req[6]&~req[7];
+    assign tb_gnt[5]=en&req[5]&~req[6]&~req[7];
+    assign tb_gnt[4]=en&req[4]&~req[5]&~req[6]&~req[7];
+    assign tb_gnt[3]=en&req[3]&~req[4]&~req[5]&~req[6]&~req[7];
+    assign tb_gnt[2]=en&req[2]&~req[3]&~req[4]&~req[5]&~req[6]&~req[7];
+    assign tb_gnt[1]=en&req[1]&~req[2]&~req[3]&~req[4]&~req[5]&~req[6]&~req[7];
+    assign tb_gnt[0]=en&req[0]&~req[1]&~req[2]&~req[3]&~req[4]&~req[5]&~req[6]&~req[7];
     assign correct=(tb_gnt==gnt);
 	
     always @(correct)
@@ -30,31 +34,16 @@ module testbench;
     begin
         $monitor("Time:%4.0f req:%b en:%b gnt:%b", $time, req, en, gnt);
 		en = 1'b1;
-		for (i = 0; i < 4'b1111; i = i + 1) begin
+		for (i = 0; i < 8'b11111111; i = i + 1) begin
 			#5;
 			req = i;
 		end
-        req=4'b0000;
-        #5    
-        req=4'b1000;
         #5
-        req=4'b0100;
+        en = 0;
         #5
-        req=4'b0010;
+        req = 8'b00011000;
         #5
-        req=4'b0001;
-        #5
-        req=4'b0101;
-        #5
-        req=4'b0110;
-        #5
-        req=4'b1110;
-        #5
-        req=4'b1111;
-        #5
-        en=0;
-        #5
-        req=4'b0110;
+        req = 8'b11111111;
         #5
         $finish;
      end // initial

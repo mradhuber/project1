@@ -26,7 +26,7 @@ LIB = /afs/umich.edu/class/eecs470/lib/verilog/lec25dscc25.v
 # SIMULATION CONFIG
 
 SIMFILES	= P1c.v
-TESTBENCH	= test.v
+TESTBENCH	= testC.v
 
 # SYNTHESIS CONFIG
 
