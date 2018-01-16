@@ -12,16 +12,14 @@ parameter zero = 2'b00; // none reqested
 
 always_comb begin
 	// grant highest priority
-	if (req[1]) begin
+	if (req[1] && en) begin
+		gnt = two;
 		req_up = 1;
-		if (en)
-			gnt = two;
 	end
 	// grant lower priority
-	else if (req[0] && ~req[1]) begin
+	else if (req[0] && ~req[1] && en) begin
 		req_up = 1;
-		if (en)
-			gnt = one;
+		gnt = one;
 	end
 	// grant neither
 	else begin
@@ -40,33 +38,22 @@ module ps4(
 	output logic 	   req_up
 );
 
-parameter zero = 4'b0000;
-
 logic [1:0] lower_gnt;
-logic [1:0] upper_gnt;
 logic [1:0] tmp_req_up;
 
 ps2 lower(.req(req[1:0]), .en(en), .gnt(lower_gnt), .req_up(tmp_req_up[0])); // store lower bit ps result
-ps2 upper(.req(req[3:2]), .en(en), .gnt(upper_gnt), .req_up(tmp_req_up[1])); // store upper bit ps result
+ps2 upper(.req(req[3:2]), .en(en), .gnt(gnt[3:2]), .req_up(tmp_req_up[1])); // store upper bit ps result
+
+assign req_up = tmp_req_up[1] & tmp_req_up[0];
 
 always_comb begin
-	// if you get a request from the "left" side
-	if (tmp_req_up[1]) begin
-		// call ps2
-		ps2 top(.req(req[3:2]), .en(en), .gnt(gnt[3:2]), .req_up(req_up));
-		// set the rest of the grant bits
-		gnt[1:0] = 2'b00;
-	end
 	// if you get a request from the "right" side
-	else if (tmp_req_up[0] && ~tmp_req_up[1]) begin
-		// call ps2
-		ps2 top(.req(req[1:0]), .en(en), .gnt(gnt[1:0]), .req_up(req_up));
+	if (tmp_req_up[0] && ~tmp_req_up[1]) begin
 		// set the rest of the grant bits
-		gnt[3:2] = 2'b00;
+		gnt[1:0] = lower_gnt;
 	end
 	else begin
-		gnt = zero;
-		req_up = 0;
+		gnt[1:0] = 2'b00;
 	end
 end
 
