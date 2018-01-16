@@ -3,7 +3,8 @@ module rps2(
 	input		 [1:0] req,
 	input		  	   en,
 	input			   sel,
-	output logic [1:0] gnt
+	output logic [1:0] gnt,
+	output logic req_up
 );
 
 parameter two = 2'b10; // grant on line 1
@@ -13,15 +14,17 @@ parameter zero = 2'b00; // none reqested
 always_comb begin
 	// req[1] has higher priority
 	if (sel) begin
-		if (req[1]) begin
-			req_up = 1;
-			if (en)
+		if (req[1] && en) begin
+			if (en) begin
 				gnt = two;
+				req_up = 1;
+			end
 		end
-		else if (req[0] && ~req[1]) begin
-			req_up = 1;
-			if (en)
+		else if (req[0] && ~req[1] && en) begin
+			if (en) begin
 				gnt = one;
+				req_up = 1;
+			end
 		end
 		else begin
 			gnt = zero;
@@ -30,15 +33,17 @@ always_comb begin
 	end
 	else begin
 		// req[0] has higher priority
-		if (req[0]) begin
-			req_up = 1;
-			if (en)
+		if (req[0] && en) begin
+			if (en) begin
 				gnt = one;
+				req_up = 1;
+			end
 		end
-		else if (req[1] && ~req[0]) begin
-			req_up = 1;
-			if (en)
+		else if (req[1] && ~req[0] && en) begin
+			if (en) begin
 				gnt = two;
+				req_up = 1;
+			end
 		end
 		else begin
 			gnt = zero;
@@ -61,25 +66,29 @@ module rps4(
 
 logic [1:0] lower_gnt;
 logic [1:0] upper_gnt;
+logic [1:0] tmp_req_up;
+logic [1:0] winner;
+logic throw_away_req_up;
 
-rps2 lower(.req(req[1:0]), .en(en), .sel(count[0]), .gnt(lower_gnt));
-rps2 upper(.req(req[3:2]), .en(en), .sel(count[0]), .gnt(upper_gnt));
+rps2 lower(.req(req[1:0]), .en(en), .sel(count[0]), .gnt(lower_gnt), .req_up(tmp_req_up[0]));
+rps2 upper(.req(req[3:2]), .en(en), .sel(count[0]), .gnt(upper_gnt), .req_up(tmp_req_up[1]));
+rps2 top(.req(tmp_req_up), .en(en), .sel(count[1]), .gnt(winner), .req_up(throw_away_req_up));
 
 always_comb begin
 	// if sel[1], left has higher priority
-	if (count[1]) begin
-		rps2 top(.req(req[3:2]), .en(en), .sel(count[0]), .gnt(gnt[3:2]));
+	if (winner[1]) begin
+		gnt[3:2] = upper_gnt;
 		gnt[1:0] = 2'b00;
 	end
 	// else, right has higher priority
 	else begin
-		rps2 top(.req(req[1:0]), .en(en), .sel(count[0]), .gnt(gnt[1:0]));
+		gnt[1:0] = lower_gnt;
 		gnt[3:2] = 2'b00;
 	end
 end
 
 // use count as sel[1:0] bus
-always_ff begin
+always_ff @(posedge clock) begin
 	if (reset)
 		count <= 2'b00;
 	else begin

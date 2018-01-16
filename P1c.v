@@ -40,15 +40,15 @@ module ps4(
 
 logic [1:0] lower_gnt;
 logic [1:0] tmp_req_up;
+logic [1:0] winner;
 
 ps2 lower(.req(req[1:0]), .en(en), .gnt(lower_gnt), .req_up(tmp_req_up[0])); // store lower bit ps result
 ps2 upper(.req(req[3:2]), .en(en), .gnt(gnt[3:2]), .req_up(tmp_req_up[1])); // store upper bit ps result
-
-assign req_up = tmp_req_up[1] | tmp_req_up[0];
+ps2 top(.req(tmp_req_up), .en(en), .gnt(winner), .req_up(req_up));
 
 always_comb begin
 	// if you get a request from the "right" side
-	if (tmp_req_up[0] && ~tmp_req_up[1]) begin
+	if (winner[0]) begin
 		// set the rest of the grant bits
 		gnt[1:0] = lower_gnt;
 	end
@@ -69,15 +69,15 @@ module ps8(
 
 logic [3:0] lower_gnt;
 logic [1:0] tmp_req_up;
+logic [1:0] winner;
 
 ps4 lower(.req(req[3:0]), .en(en), .gnt(lower_gnt), .req_up(tmp_req_up[0])); // store lower bit ps result
 ps4 upper(.req(req[7:4]), .en(en), .gnt(gnt[7:4]), .req_up(tmp_req_up[1])); // store upper bit ps result
-
-assign req_up = tmp_req_up[1] | tmp_req_up[0];
+ps2 top(.req(tmp_req_up), .en(en), .gnt(winner), .req_up(req_up));
 
 always_comb begin
 	// if you get a request from the "right" side
-	if (tmp_req_up[0] && ~tmp_req_up[1]) begin
+	if (winner[0]) begin
 		// set the rest of the grant bits
 		gnt[3:0] = lower_gnt;
 	end
