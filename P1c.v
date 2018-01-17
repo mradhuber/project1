@@ -12,19 +12,23 @@ parameter zero = 2'b00; // none reqested
 
 always_comb begin
 	// grant highest priority
-	if (req[1] && en) begin
-		gnt = two;
+	if (req[1]) begin
 		req_up = 1;
+		gnt = two;
 	end
 	// grant lower priority
-	else if (req[0] && ~req[1] && en) begin
+	else if (req[0] && ~req[1]) begin
 		req_up = 1;
 		gnt = one;
 	end
 	// grant neither
 	else begin
-		gnt = zero;
 		req_up = 0;
+		gnt = zero;
+	end
+
+	if (~en) begin
+		gnt = zero;
 	end
 end
 
@@ -38,24 +42,12 @@ module ps4(
 	output logic 	   req_up
 );
 
-logic [1:0] lower_gnt;
 logic [1:0] tmp_req_up;
 logic [1:0] winner;
 
-ps2 lower(.req(req[1:0]), .en(en), .gnt(lower_gnt), .req_up(tmp_req_up[0])); // store lower bit ps result
-ps2 upper(.req(req[3:2]), .en(en), .gnt(gnt[3:2]), .req_up(tmp_req_up[1])); // store upper bit ps result
+ps2 lower(.req(req[1:0]), .en(en & ~winner[1] & winner[0]), .gnt(gnt[1:0]), .req_up(tmp_req_up[0])); // store lower bit ps result
+ps2 upper(.req(req[3:2]), .en(en & winner[1]), .gnt(gnt[3:2]), .req_up(tmp_req_up[1])); // store upper bit ps result
 ps2 top(.req(tmp_req_up), .en(en), .gnt(winner), .req_up(req_up));
-
-always_comb begin
-	// if you get a request from the "right" side
-	if (winner[0]) begin
-		// set the rest of the grant bits
-		gnt[1:0] = lower_gnt;
-	end
-	else begin
-		gnt[1:0] = 2'b00;
-	end
-end
 
 endmodule
 
@@ -67,23 +59,11 @@ module ps8(
 	output logic 	   req_up
 );
 
-logic [3:0] lower_gnt;
 logic [1:0] tmp_req_up;
 logic [1:0] winner;
 
-ps4 lower(.req(req[3:0]), .en(en), .gnt(lower_gnt), .req_up(tmp_req_up[0])); // store lower bit ps result
-ps4 upper(.req(req[7:4]), .en(en), .gnt(gnt[7:4]), .req_up(tmp_req_up[1])); // store upper bit ps result
+ps4 lower(.req(req[3:0]), .en(en & ~winner[1] & winner[0]), .gnt(gnt[3:0]), .req_up(tmp_req_up[0])); // store lower bit ps result
+ps4 upper(.req(req[7:4]), .en(en & winner[1]), .gnt(gnt[7:4]), .req_up(tmp_req_up[1])); // store upper bit ps result
 ps2 top(.req(tmp_req_up), .en(en), .gnt(winner), .req_up(req_up));
-
-always_comb begin
-	// if you get a request from the "right" side
-	if (winner[0]) begin
-		// set the rest of the grant bits
-		gnt[3:0] = lower_gnt;
-	end
-	else begin
-		gnt[3:0] = 2'b00;
-	end
-end
 
 endmodule
